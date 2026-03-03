@@ -35,7 +35,7 @@ except Exception as e:
 
 # --- 2. UI 구성 ---
 st.set_page_config(page_title="팔로워:수치 제어 시뮬레이터", layout="wide")
-st.title("🌟 팔로워 시스템: 수치 기반 통합 시뮬레이터")
+st.title("🌟 팔로워 시스템: 수치 기반 통합 시뮬레이터- 바뀌나 보자")
 st.markdown("> **본 시뮬레이터의 수치는 임의의 가상 데이터입니다.**")
 
 # --- 3. 사이드바: 밸런스 변수 설정 ---
@@ -140,3 +140,4 @@ if st.button("✨ AI 리드 기획자 진단 받기"):
         except Exception as e:
 
             st.error(f"AI 호출 실패: {e}")
+
