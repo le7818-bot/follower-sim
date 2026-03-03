@@ -58,22 +58,49 @@ st.set_page_config(page_title="팔로워:수치 제어 시뮬레이터", layout=
 st.title("🌟 팔로워 시스템: 수치 기반 통합 시뮬레이터- 바뀌나 보자")
 st.markdown("> **본 시뮬레이터의 수치는 임의의 가상 데이터입니다.**")
 
-# --- 3. 사이드바: 밸런스 변수 설정 ---
+# --- 3. 사이드바: 밸런스 변수 설정 (위쪽 일일 획득량 설정은 그대로 유지) ---
 st.sidebar.header("🛡️ 일일 획득량 설정")
-# 슬라이더에서 number_input으로 변경, 증감 폭(step) 설정
 daily_base = st.sidebar.number_input("일일 확정 획득량", value=30000, step=1000)
 pvp_min = st.sidebar.number_input("추가 획득 (최소)", value=5000, step=500)
 pvp_max = st.sidebar.number_input("추가 획득 (최대)", value=50000, step=1000)
 
-st.sidebar.header("📊 등급별 커트라인 설정 (직접 입력)")
-# 등급 단계를 7단계로 조정
-v_r1 = st.sidebar.number_input("루키 1", value=100000, step=50000)
-v_r2 = st.sidebar.number_input("루키 2", value=500000, step=100000)
-v_r3 = st.sidebar.number_input("루키 3", value=1500000, step=100000)
-v_rs1 = st.sidebar.number_input("라이징 1", value=3500000, step=500000)
-v_rs2 = st.sidebar.number_input("라이징 2 (핵심보상)", value=6000000, step=500000)
-v_rs3 = st.sidebar.number_input("라이징 3", value=8500000, step=500000)
-v_icon = st.sidebar.number_input("아이콘 (최종)", value=10000000, step=500000)
+st.sidebar.header("📊 등급별 커트라인 설정")
+st.sidebar.caption("💡 루키 1과 아이콘 값을 변경하면 중간 등급이 자동 계산됩니다! (개별 수정 가능)")
+
+# [핵심 1] 세션 상태(메모리) 초기화
+# Streamlit은 새로고침될 때마다 변수가 날아가므로, 고유 key 메모리에 값을 저장해둡니다.
+if 'v_r1' not in st.session_state: st.session_state['v_r1'] = 100000
+if 'v_r2' not in st.session_state: st.session_state['v_r2'] = 500000
+if 'v_r3' not in st.session_state: st.session_state['v_r3'] = 1500000
+if 'v_rs1' not in st.session_state: st.session_state['v_rs1'] = 3500000
+if 'v_rs2' not in st.session_state: st.session_state['v_rs2'] = 6000000
+if 'v_rs3' not in st.session_state: st.session_state['v_rs3'] = 8500000
+if 'v_icon' not in st.session_state: st.session_state['v_icon'] = 10000000
+
+# [핵심 2] 중간값 자동 연산 함수 (콜백)
+# 최소/최대값이 변경될 때만 실행되어 중간값들을 선형(Linear)으로 균등 분배합니다.
+def update_intermediates():
+    min_val = st.session_state['v_r1']
+    max_val = st.session_state['v_icon']
+    
+    if max_val > min_val:
+        # 총 7단계이므로 구간(step)은 6개입니다.
+        step = (max_val - min_val) / 6 
+        st.session_state['v_r2'] = int(min_val + step * 1)
+        st.session_state['v_r3'] = int(min_val + step * 2)
+        st.session_state['v_rs1'] = int(min_val + step * 3)
+        st.session_state['v_rs2'] = int(min_val + step * 4)
+        st.session_state['v_rs3'] = int(min_val + step * 5)
+
+# [핵심 3] UI 출력 (세션 상태의 key와 연결)
+# 최소(v_r1)와 최대(v_icon) 입력창에만 on_change=update_intermediates 속성을 부여합니다.
+v_r1 = st.sidebar.number_input("루키 1 (최소)", key='v_r1', step=50000, on_change=update_intermediates)
+v_r2 = st.sidebar.number_input("루키 2", key='v_r2', step=100000)
+v_r3 = st.sidebar.number_input("루키 3", key='v_r3', step=100000)
+v_rs1 = st.sidebar.number_input("라이징 1", key='v_rs1', step=500000)
+v_rs2 = st.sidebar.number_input("라이징 2 (핵심보상)", key='v_rs2', step=500000)
+v_rs3 = st.sidebar.number_input("라이징 3", key='v_rs3', step=500000)
+v_icon = st.sidebar.number_input("아이콘 (최대/최종)", key='v_icon', step=500000, on_change=update_intermediates)
 
 # --- 4. 밸런스 역산 로직 (Value -> Day) ---
 # 최저와 최대 사이의 중간 단계 자동 연산
@@ -160,6 +187,7 @@ if st.button("✨ AI 리드 기획자 진단 받기"):
         except Exception as e:
 
             st.error(f"AI 호출 실패: {e}")
+
 
 
 
