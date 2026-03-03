@@ -175,7 +175,7 @@ with col2:
 
 # --- 6. AI 진단 ---
 st.divider()
-if st.button("✨ AI 리드 기획자 진단 받기"):
+if st.button("✨ 현재 밸런스에 대한 AI 피드백"):
     with st.spinner("분석 중..."):
         try:
             prompt = f"""
@@ -202,6 +202,7 @@ if st.button("✨ AI 리드 기획자 진단 받기"):
         except Exception as e:
 
             st.error(f"AI 호출 실패: {e}")
+
 
 
 
