@@ -55,7 +55,7 @@ except Exception as e:
 
 # --- 2. UI 구성 ---
 st.set_page_config(page_title="팔로워:수치 제어 시뮬레이터", layout="wide")
-st.title("🌟 팔로워 시스템: 수치 기반 통합 시뮬레이터- 바뀌나 보자")
+st.title("🌟 팔로워 시스템: 수치 기반 통합 시뮬레이터")
 st.markdown("> **본 시뮬레이터의 수치는 임의의 가상 데이터입니다.**")
 
 # --- 3. 사이드바: 밸런스 변수 설정 (위쪽 일일 획득량 설정은 그대로 유지) ---
@@ -97,8 +97,8 @@ def update_intermediates():
 v_r1 = st.sidebar.number_input("루키 1 (최소)", key='v_r1', step=50000, on_change=update_intermediates)
 v_r2 = st.sidebar.number_input("루키 2", key='v_r2', step=100000)
 v_r3 = st.sidebar.number_input("루키 3", key='v_r3', step=100000)
-v_rs1 = st.sidebar.number_input("라이징 1", key='v_rs1', step=500000)
-v_rs2 = st.sidebar.number_input("라이징 2 (핵심보상)", key='v_rs2', step=500000)
+v_rs1 = st.sidebar.number_input("라이징 1(핵심보상)", key='v_rs1', step=500000)
+v_rs2 = st.sidebar.number_input("라이징 2 ", key='v_rs2', step=500000)
 v_rs3 = st.sidebar.number_input("라이징 3", key='v_rs3', step=500000)
 v_icon = st.sidebar.number_input("아이콘 (최대/최종)", key='v_icon', step=500000, on_change=update_intermediates)
 
@@ -187,6 +187,7 @@ if st.button("✨ AI 리드 기획자 진단 받기"):
         except Exception as e:
 
             st.error(f"AI 호출 실패: {e}")
+
 
 
 
