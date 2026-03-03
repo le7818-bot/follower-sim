@@ -132,12 +132,20 @@ col1, col2 = st.columns([2, 1])
 
 with col1:
     st.subheader("📈 성장 예상 곡선")
-    max_days = int(v_icon / daily_light) + 10 if daily_light > 0 else 100
+    # 그래프를 그릴 최대 일수는 라이트 유저가 아이콘을 달성하는 날 + 여유분(20일)으로 설정
+    max_days = int(v_icon / daily_light) + 20 if daily_light > 0 else 100
     x = np.arange(1, max_days + 1)
     
+    # [핵심 수정] np.minimum을 사용하여 계산된 값이 v_icon을 넘지 못하게 상한선(Cap) 설정
+    y_light = np.minimum(x * daily_light, v_icon)
+    y_hard = np.minimum(x * daily_hard, v_icon)
+    y_avg = np.minimum(x * daily_avg, v_icon)
+    
     fig, ax = plt.subplots(figsize=(10, 6))
-    ax.fill_between(x, x * daily_light, x * daily_hard, color='skyblue', alpha=0.1, label="성장 오차")
-    ax.plot(x, x * daily_avg, color='blue', label="평균 성장", linewidth=3)
+    
+    # 수정된 y값들을 그래프에 적용
+    ax.fill_between(x, y_light, y_hard, color='skyblue', alpha=0.1, label="성장 오차 (라이트~하드)")
+    ax.plot(x, y_avg, color='blue', label="평균 성장", linewidth=3)
     
     for name, val in zip(tier_names, threshold_vals):
         ax.axhline(y=val, color='gray', linestyle=':', alpha=0.5)
@@ -187,6 +195,7 @@ if st.button("✨ AI 리드 기획자 진단 받기"):
         except Exception as e:
 
             st.error(f"AI 호출 실패: {e}")
+
 
 
 
