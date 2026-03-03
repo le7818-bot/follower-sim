@@ -4,8 +4,32 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import google.generativeai as genai
 import matplotlib
-from matplotlib import font_manager, rc
+from matplotlib import font_manager
+
 import platform
+import os
+
+# --- 0. 한글 폰트 설정 (폰트 파일 경로 지정 방식) ---
+# 저장소 루트에 올린 폰트 파일 이름
+font_path = "NanumGothic.ttf" 
+
+# 폰트 파일이 실제로 존재하는지 확인하고 설정
+if os.path.exists(font_path):
+    try:
+        # 1. 폰트 파일에서 폰트 이름 추출
+        font_name = font_manager.FontProperties(fname=font_path).get_name()
+        
+        # 2. matplotlib 기본 폰트로 설정
+        plt.rc('font', family=font_name)
+        
+        # 3. 그래프에서 마이너스(-) 기호가 깨지는 현상 방지
+        plt.rcParams['axes.unicode_minus'] = False 
+        
+    except Exception as e:
+        st.warning(f"폰트 설정 중 오류가 발생했습니다: {e}")
+else:
+    # 폰트 파일을 찾지 못한 경우 경고 표시
+    st.warning(f"'{font_path}' 폰트 파일을 찾을 수 없습니다. 그래프의 한글이 깨질 수 있습니다.")
 
 # --- 1. 환경 설정 (수정된 깃허브 업로드 버전) ---
 try:
@@ -140,4 +164,5 @@ if st.button("✨ AI 리드 기획자 진단 받기"):
         except Exception as e:
 
             st.error(f"AI 호출 실패: {e}")
+
 
