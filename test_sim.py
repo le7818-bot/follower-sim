@@ -132,28 +132,35 @@ col1, col2 = st.columns([2, 1])
 
 with col1:
     st.subheader("📈 성장 예상 곡선")
-    # 그래프를 그릴 최대 일수는 라이트 유저가 아이콘을 달성하는 날 + 여유분(20일)으로 설정
-    max_days = int(v_icon / daily_light) + 20 if daily_light > 0 else 100
-    x = np.arange(1, max_days + 1)
     
-    # [핵심 수정] np.minimum을 사용하여 계산된 값이 v_icon을 넘지 못하게 상한선(Cap) 설정
+    # [핵심 수정] x축의 최대 길이를 '평균 유저'가 목표에 도달하는 날짜로 맞춥니다.
+    max_days = int(v_icon / daily_avg) 
+    
+    # 0일차부터 시작하도록 조정 (선이 깔끔하게 원점에서 출발)
+    x = np.arange(0, max_days + 1)
+    
+    # 상한선(Cap) 로직은 논리적 모순 방지를 위해 유지
     y_light = np.minimum(x * daily_light, v_icon)
     y_hard = np.minimum(x * daily_hard, v_icon)
     y_avg = np.minimum(x * daily_avg, v_icon)
     
     fig, ax = plt.subplots(figsize=(10, 6))
     
-    # 수정된 y값들을 그래프에 적용
+    # 면적 및 선 그리기
     ax.fill_between(x, y_light, y_hard, color='skyblue', alpha=0.1, label="성장 오차 (라이트~하드)")
     ax.plot(x, y_avg, color='blue', label="평균 성장", linewidth=3)
     
     for name, val in zip(tier_names, threshold_vals):
         ax.axhline(y=val, color='gray', linestyle=':', alpha=0.5)
-        ax.text(1, val, f" {name}", fontsize=10, verticalalignment='bottom')
+        ax.text(0, val, f" {name}", fontsize=10, verticalalignment='bottom') # 텍스트 위치 0으로 밀착
+
+    # [디자인 수정] x축과 y축의 범위를 강제로 고정하여 불필요한 자동 여백을 없앱니다.
+    ax.set_xlim(0, max_days)
+    ax.set_ylim(0, v_icon * 1.05) # y축 상단에만 시각적 답답함을 피하기 위해 5% 여백 추가
 
     ax.set_xlabel("플레이 일차 (Day)")
     ax.set_ylabel("누적 팔로워")
-    ax.legend()
+    ax.legend(loc='lower right') # 범례 위치가 선을 가리지 않도록 우측 하단으로 이동
     ax.grid(True, axis='y', alpha=0.2)
     st.pyplot(fig)
 
@@ -195,6 +202,7 @@ if st.button("✨ AI 리드 기획자 진단 받기"):
         except Exception as e:
 
             st.error(f"AI 호출 실패: {e}")
+
 
 
 
